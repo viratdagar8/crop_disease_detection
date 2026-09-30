@@ -1,0 +1,61 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Large dataset files (Raw image folders should not be pushed to Git)
+dataset/raw/
+dataset/PlantVillage/
+dataset/*.zip
+dataset/*.tar.gz
+data/
+
+# Model checkpoint weights (large files)
+model/*.h5
+model/*.keras
+model/*.weights.h5
+!model/class_indices.json
+!model/disease_info.json
+
+# Logs & temporary files
+logs/
+*.log
+static/uploads/*
+!static/uploads/.gitkeep

@@ -1,0 +1,16 @@
+# Core Deep Learning & Machine Learning
+tensorflow>=2.15.0,<2.19.0
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+pillow>=10.0.0
+
+# Dataset acquisition (Hugging Face)
+datasets>=2.18.0,<3.0.0
+tqdm>=4.66.0
+
+# Backend Web Application
+flask>=3.0.0
+werkzeug>=3.0.0
