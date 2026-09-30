@@ -141,7 +141,7 @@ crop_disease_detection/
 ### 2. Environment Setup
 ```bash
 # Clone the repository
-git clone https://github.com/viratdagar/crop_disease_detection.git
+git clone https://github.com/viratdagar8/crop_disease_detection.git
 cd crop_disease_detection
 
 # Create and activate virtual environment
