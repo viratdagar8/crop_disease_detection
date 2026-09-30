@@ -51,6 +51,7 @@ data/
 model/*.h5
 model/*.keras
 model/*.weights.h5
+!model/plant_disease_model.h5
 !model/class_indices.json
 !model/disease_info.json
 
