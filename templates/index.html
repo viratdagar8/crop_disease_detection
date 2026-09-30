@@ -3,220 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crop Disease Detection Using CNN | AgriScan AI</title>
-    <!-- Fonts & Icons -->
+    <title>AgriScan AI - Crop Disease Detection Using CNN</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Custom Stylesheet -->
+    <!-- Custom Modern CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- React 18 and Babel for in-browser JSX compilation -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
 
-    <!-- Top Navigation Header -->
-    <header class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <div class="logo-icon"><i class="fa-solid fa-leaf"></i></div>
-                <div class="logo-text">
-                    <span class="brand-name">AgriScan <span class="highlight">AI</span></span>
-                    <span class="brand-tag">Deep Learning Vision System</span>
-                </div>
-            </div>
-            <div class="project-badge">
-                <span class="badge-pill"><i class="fa-solid fa-graduation-cap"></i> ABES EC &bull; HCLTech Project</span>
-                <span class="student-name">Virat Dagar | B.Tech CSE (DS)</span>
-            </div>
-        </div>
-    </header>
+    <!-- React Root Container -->
+    <div id="root"></div>
 
-    <main class="main-container">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <h1 class="hero-title">Early Crop Disease Identification with <span class="gradient-text">Convolutional Neural Networks</span></h1>
-            <p class="hero-subtitle">
-                Upload a clear leaf photograph to classify plant health, detect diseases across 14 crop species, and receive agronomic decision-support insights.
-            </p>
-            <div class="supported-crops">
-                <span class="crop-tag"><i class="fa-solid fa-apple-whole"></i> Apple</span>
-                <span class="crop-tag"><i class="fa-solid fa-seedling"></i> Tomato</span>
-                <span class="crop-tag"><i class="fa-solid fa-cubes-stacked"></i> Potato</span>
-                <span class="crop-tag"><i class="fa-solid fa-wheat-awn"></i> Corn</span>
-                <span class="crop-tag"><i class="fa-solid fa-wine-glass"></i> Grape</span>
-                <span class="crop-tag"><i class="fa-solid fa-pepper-hot"></i> Bell Pepper</span>
-                <span class="crop-tag">+ 8 More Species</span>
-            </div>
-        </section>
-
-        <!-- Notification Banner / Alert Box -->
-        <div id="alertBox" class="alert-box hidden">
-            <i class="fa-solid fa-circle-exclamation alert-icon"></i>
-            <span id="alertMessage" class="alert-message"></span>
-            <button class="alert-close" onclick="hideAlert()">&times;</button>
-        </div>
-
-        <!-- Main Workspace Card -->
-        <div class="workspace-card">
-
-            <!-- 1. Upload & Drop Zone -->
-            <div id="uploadView" class="upload-view">
-                <div class="drop-zone" id="dropZone">
-                    <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg, image/webp" class="file-input">
-                    <div class="drop-zone-content">
-                        <div class="upload-icon-circle">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                        </div>
-                        <h3 class="drop-zone-title">Drag & drop your leaf image here</h3>
-                        <p class="drop-zone-sub">or <span class="browse-link">browse files</span> from your computer</p>
-                        <div class="file-constraints">
-                            <span><i class="fa-regular fa-image"></i> PNG, JPG, JPEG, WEBP</span>
-                            <span>&bull;</span>
-                            <span><i class="fa-solid fa-weight-scale"></i> Up to 16 MB</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Preview State (Before analysis) -->
-                <div id="previewCard" class="preview-card hidden">
-                    <div class="preview-media">
-                        <img id="imagePreview" src="" alt="Selected leaf preview">
-                        <button class="remove-btn" id="removeBtn" title="Remove image">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                    <div class="preview-meta">
-                        <span id="previewFileName" class="file-name">leaf_sample.jpg</span>
-                        <span id="previewFileSize" class="file-size">1.2 MB</span>
-                    </div>
-                    <button id="analyzeBtn" class="primary-btn pulse-glow">
-                        <i class="fa-solid fa-microscope"></i> Analyze Leaf Health
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. Loading Scanner State -->
-            <div id="loadingView" class="loading-view hidden">
-                <div class="scanner-box">
-                    <img id="loadingImagePreview" src="" alt="Scanning leaf">
-                    <div class="scan-laser-line"></div>
-                </div>
-                <div class="loading-text-container">
-                    <div class="spinner"></div>
-                    <h3 class="loading-title">Processing Neural Network Forward Pass...</h3>
-                    <p class="loading-sub">Resizing tensor to 128×128 &bull; Normalizing RGB values &bull; Feature Map Extraction</p>
-                </div>
-            </div>
-
-            <!-- 3. Prediction Results View -->
-            <div id="resultView" class="result-view hidden">
-                <div class="result-header">
-                    <div class="result-title-group">
-                        <span class="section-label">Prediction Results</span>
-                        <h2 class="result-headline" id="resCondition">Early Blight</h2>
-                        <div class="result-tags">
-                            <span class="crop-badge" id="resCrop"><i class="fa-solid fa-seedling"></i> Tomato</span>
-                            <span class="status-badge" id="resStatusBadge"><i class="fa-solid fa-shield-virus"></i> Pathogen Detected</span>
-                        </div>
-                    </div>
-                    <div class="confidence-meter-box">
-                        <div class="gauge-label">Confidence</div>
-                        <div class="gauge-value" id="resConfidence">96.8%</div>
-                        <div class="progress-track">
-                            <div class="progress-bar" id="resConfidenceBar" style="width: 96.8%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="result-grid">
-                    <!-- Left: Leaf Image & Top-3 Probabilities -->
-                    <div class="result-col-left">
-                        <div class="analyzed-image-frame">
-                            <img id="resImage" src="" alt="Analyzed Leaf">
-                            <div class="image-overlay-pill">Analyzed Image</div>
-                        </div>
-
-                        <div class="probabilities-card">
-                            <h4 class="card-subtitle"><i class="fa-solid fa-chart-column"></i> Top Model Probabilities</h4>
-                            <div id="topPredictionsList" class="predictions-list">
-                                <!-- Populated dynamically by JS -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right: Agronomic Advisory & Knowledge Base -->
-                    <div class="result-col-right">
-                        <div class="advisory-card">
-                            <h4 class="card-subtitle"><i class="fa-solid fa-book-medical"></i> Agronomic Advisory</h4>
-
-                            <div class="info-block">
-                                <span class="info-title"><i class="fa-solid fa-dna"></i> Suspected Pathogen / Cause</span>
-                                <p id="resCause" class="info-text">Fungal (Alternaria solani)</p>
-                            </div>
-
-                            <div class="info-block">
-                                <span class="info-title"><i class="fa-solid fa-magnifying-glass"></i> Key Visual Symptoms</span>
-                                <p id="resSymptoms" class="info-text">Concentric dark brown rings on leaf surfaces.</p>
-                            </div>
-
-                            <div class="info-block">
-                                <span class="info-title"><i class="fa-solid fa-hand-holding-hand"></i> Recommended Management Practice</span>
-                                <p id="resManagement" class="info-text">Apply copper-based organic spray and practice 3-year crop rotation.</p>
-                            </div>
-
-                            <div class="disclaimer-callout">
-                                <i class="fa-solid fa-circle-info"></i>
-                                <span><strong>Decision-Support Notice:</strong> This AI system is an academic decision-support tool. It does not replace on-field lab tests or certified agronomist diagnosis.</span>
-                            </div>
-                        </div>
-
-                        <!-- Reset / Try Again Action -->
-                        <div class="action-footer">
-                            <button id="tryAgainBtn" class="secondary-btn">
-                                <i class="fa-solid fa-arrow-rotate-left"></i> Analyze Another Leaf
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Architecture & Academic Pipeline Info Accordion -->
-        <section class="tech-spec-section">
-            <div class="spec-card">
-                <div class="spec-icon"><i class="fa-solid fa-network-wired"></i></div>
-                <div>
-                    <h4>Baseline CNN Architecture</h4>
-                    <p>4 Conv2D Blocks (32, 64, 128, 256 filters) with Batch Normalization, ReLU activations, Max Pooling, and Dropout regularization.</p>
-                </div>
-            </div>
-            <div class="spec-card">
-                <div class="spec-icon"><i class="fa-solid fa-database"></i></div>
-                <div>
-                    <h4>PlantVillage RGB Dataset</h4>
-                    <p>54,306 images across 14 crop species and 26 diseases. Predefined 80/20 train/test splits + 15% internal validation split.</p>
-                </div>
-            </div>
-            <div class="spec-card">
-                <div class="spec-icon"><i class="fa-solid fa-gauge-high"></i></div>
-                <div>
-                    <h4>Evaluation Metrics</h4>
-                    <p>Strict evaluation tracking multiclass Accuracy, Weighted Precision, Recall, F1-Score, and Confusion Matrix.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-        <div class="footer-container">
-            <p>&copy; 2026 <strong>Virat Dagar</strong> &bull; B.Tech Computer Science & Engineering (Data Science)</p>
-            <p class="college-info">ABES Engineering College &bull; HCLTech Industry Aligned Projects Program &bull; Academic Session 2026–27</p>
-        </div>
-    </footer>
-
-    <!-- Frontend Script -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- React Application Component -->
+    <script type="text/babel" src="{{ url_for('static', filename='js/app.jsx') }}"></script>
 </body>
 </html>
