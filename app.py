@@ -4,10 +4,21 @@ Aligns with PRD Sections 9, 14, 15, and Sprint 8 requirements.
 
 import os
 import uuid
+import sys
 from pathlib import Path
+
+# Silence verbose C++ TensorFlow logs
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
 from flask import Flask, render_template, request, jsonify, url_for
 from werkzeug.utils import secure_filename
 from PIL import Image
+
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config import UPLOAD_FOLDER, CLASS_INDICES_PATH, PROJECT_ROOT
 from src.predict import predict_crop_disease, load_model_and_metadata
@@ -102,11 +113,13 @@ def predict():
 
 
 if __name__ == "__main__":
-    # Pre-load model on startup
-    load_model_and_metadata()
     print("=" * 60)
     print("Crop Disease Detection Web Application")
     print("ABES Engineering College - HCLTech Industry Aligned Project")
+    print("[1/2] Loading neural network model into memory...")
+    print("=" * 60)
+    load_model_and_metadata()
+    print("[2/2] Model ready! Starting web server...")
     print("Server running at: http://127.0.0.1:5000")
     print("=" * 60)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
