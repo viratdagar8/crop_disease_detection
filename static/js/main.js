@@ -143,7 +143,11 @@ document.addEventListener("DOMContentLoaded", () => {
             displayResults(data);
 
         } catch (err) {
-            showAlert(err.message || "Network error. Please try again.");
+            let msg = err.message || "Network error. Please try again.";
+            if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+                msg = "Failed to connect to backend server. Please ensure Flask app is running (python app.py).";
+            }
+            showAlert(msg);
             loadingView.classList.add("hidden");
             uploadView.classList.remove("hidden");
         }
@@ -171,7 +175,10 @@ document.addEventListener("DOMContentLoaded", () => {
         resConfidence.textContent = `${data.confidence}%`;
         resConfidenceBar.style.width = `${Math.min(100, Math.max(10, data.confidence))}%`;
 
-        // Image
+        // Image with fallback
+        resImage.onerror = () => {
+            resImage.src = imagePreview.src || "/static/samples/tomato_bacterial_spot.jpg";
+        };
         resImage.src = data.image_url || imagePreview.src;
 
         // Top 3 Probabilities

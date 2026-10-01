@@ -27,6 +27,7 @@ from src.predict import predict_crop_disease, load_model_and_metadata
 app = Flask(__name__, template_folder=str(PROJECT_ROOT / "templates"), static_folder=str(PROJECT_ROOT / "static"))
 app.config["SECRET_KEY"] = "crop-disease-detection-secret-2026"
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max upload size
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}

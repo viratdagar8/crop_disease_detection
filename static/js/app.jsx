@@ -262,7 +262,11 @@ function App() {
             });
 
         } catch (err) {
-            setErrorMsg(err.message || "Failed to analyze leaf image.");
+            let msg = err.message || "Failed to analyze leaf image.";
+            if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+                msg = "Failed to connect to the backend server. Please ensure the Flask app is running (python app.py).";
+            }
+            setErrorMsg(msg);
         } finally {
             setIsLoading(false);
         }
@@ -539,7 +543,17 @@ function App() {
                             <div className="result-body-grid">
                                 <div className="left-panel">
                                     <div className="analyzed-frame">
-                                        <img src={prediction.image_url || previewUrl} alt="Analyzed Leaf" />
+                                        <img 
+                                            src={prediction.image_url || previewUrl} 
+                                            alt="Analyzed Leaf" 
+                                            onError={(e) => {
+                                                if (previewUrl && e.target.src !== previewUrl) {
+                                                    e.target.src = previewUrl;
+                                                } else {
+                                                    e.target.src = "/static/samples/tomato_bacterial_spot.jpg";
+                                                }
+                                            }}
+                                        />
                                         <div className="frame-overlay">Uploaded Specimen</div>
                                     </div>
 
@@ -670,7 +684,13 @@ function App() {
                             {recentScans.map((scan) => (
                                 <div key={scan.id} className="recent-card" onClick={() => loadRecentScan(scan)} title={`Click to review ${scan.crop} - ${scan.condition}`}>
                                     <div className="recent-thumb">
-                                        <img src={scan.thumbnail} alt={scan.condition} />
+                                        <img 
+                                            src={scan.thumbnail} 
+                                            alt={scan.condition} 
+                                            onError={(e) => {
+                                                e.target.src = "/static/samples/tomato_bacterial_spot.jpg";
+                                            }}
+                                        />
                                         <span className={`recent-status-dot ${scan.is_healthy ? "healthy" : "diseased"}`}></span>
                                     </div>
                                     <div className="recent-details">
