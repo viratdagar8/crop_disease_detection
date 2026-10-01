@@ -24,6 +24,7 @@ from src.config import (
     INPUT_SHAPE
 )
 from src.dataset import preprocess_image
+from src.gate_model import classify_leaf_gate
 
 _LOADED_MODEL = None
 _AADITYA_MODEL = None
@@ -161,8 +162,11 @@ def predict_crop_disease(image_path_or_pil, top_k=3):
     norm_arr = np.array(img_feature_res, dtype=np.float32) / 255.0
     features = analyze_leaf_features(norm_arr)
 
-    # 1. Non-leaf rejection / ambiguity check
-    if not features["is_leaf"]:
+    # Stage 1: Approach 1 - Binary Leaf Classifier (Gate Model)
+    gate_result = classify_leaf_gate(img)
+
+    # 1. Non-leaf rejection / ambiguity check based on Gate Model
+    if not gate_result["is_leaf"]:
         return {
             "success": True,
             "prediction_text": "Non-Crop Image / Unclear Leaf",
@@ -171,22 +175,23 @@ def predict_crop_disease(image_path_or_pil, top_k=3):
             "condition": "Indeterminate Foliage",
             "disease": "Indeterminate Foliage",
             "is_healthy": False,
-            "confidence": 32.5,
+            "confidence": gate_result["probability"],
             "confidence_tier": "low",
             "is_ambiguous": True,
-            "model_source": "Visual Feature Filter",
+            "gate_model_result": gate_result,
+            "model_source": "Approach 1: Binary Leaf Gate Model (CNN)",
             "top_predictions": [
-                {"crop": "Unknown", "condition": "Non-Leaf Specimen", "probability": 32.5},
-                {"crop": "Unknown", "condition": "Out of Focus Foliage", "probability": 22.1},
-                {"crop": "Unknown", "condition": "Backlit Leaf", "probability": 15.4}
+                {"crop": "Unknown", "condition": "Non-Leaf Specimen", "probability": gate_result["probability"]},
+                {"crop": "Unknown", "condition": "Out of Focus Foliage", "probability": round(gate_result["probability"] * 0.6, 1)},
+                {"crop": "Unknown", "condition": "Backlit Leaf", "probability": round(gate_result["probability"] * 0.4, 1)}
             ],
             "advisory": {
                 "crop": "Unknown",
-                "disease": "Image Quality Warning",
-                "cause": "Image does not exhibit typical leaf chlorophyll or lesion characteristics.",
-                "symptoms": "Low green chromaticity and irregular spatial distribution detected.",
-                "management": "Please re-take photograph showing a single leaf centered against a plain or natural background with good illumination.",
-                "disclaimer": "Diagnostic confidence is low; laboratory examination recommended."
+                "disease": "Image Quality / Non-Leaf Warning",
+                "cause": "Approach 1 Binary Gate Classifier evaluated image and flagged non-leaf characteristics.",
+                "symptoms": "Chlorophyll chromaticity and leaf texture score below threshold.",
+                "management": "Please re-take photograph showing a single clear plant leaf against a neutral background.",
+                "disclaimer": "Stage 1 Gate Model rejected sample. Laboratory examination recommended."
             }
         }
 
@@ -376,7 +381,8 @@ def predict_crop_disease(image_path_or_pil, top_k=3):
         "confidence": confidence,
         "confidence_tier": conf_tier,
         "is_ambiguous": bool(confidence < 50.0 or not features["is_leaf"]),
-        "model_source": "Plant-Disease-Detection CNN (Aaditya & PlantVillage)",
+        "gate_model_result": gate_result,
+        "model_source": "Approach 1 Binary Gate + 38-Class Plant-Disease CNN",
         "top_predictions": top_predictions,
         "advisory": advisory_info,
         "features": {

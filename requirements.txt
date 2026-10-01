@@ -11,6 +11,10 @@ pillow>=10.0.0
 datasets>=2.18.0,<3.0.0
 tqdm>=4.66.0
 
-# Backend Web Application
+# Backend Web Application & Deployment
 flask>=3.0.0
 werkzeug>=3.0.0
+gunicorn>=21.2.0
+
+# Document & Report Generation
+reportlab>=4.0.0

@@ -78,3 +78,46 @@ def build_mobilenet_transfer_model(input_shape=(128, 128, 3), num_classes=38):
 
     model = models.Model(inputs, outputs, name="CropDisease_MobileNetV2")
     return model
+
+
+def build_binary_gate_model(input_shape=(128, 128, 3)):
+    """Approach 1: Binary Leaf Classifier (Gate Model).
+    Acts as a Stage 1 primary security gatekeeper in the hierarchical architecture.
+    Binary Classification:
+        - Class 1: Valid Plant Leaf
+        - Class 0: Non-Leaf / Invalid Object / Background Artifact
+    
+    Architecture:
+        - 3 Conv2D blocks with BatchNorm and MaxPool
+        - Dense classification head with Sigmoid activation
+    """
+    model = models.Sequential(name="CropDisease_BinaryGateCNN")
+    model.add(layers.Input(shape=input_shape))
+
+    # Conv Block 1
+    model.add(layers.Conv2D(32, (3, 3), padding="same", activation="relu"))
+    model.add(layers.BatchNormalization())
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(layers.Dropout(0.2))
+
+    # Conv Block 2
+    model.add(layers.Conv2D(64, (3, 3), padding="same", activation="relu"))
+    model.add(layers.BatchNormalization())
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(layers.Dropout(0.2))
+
+    # Conv Block 3
+    model.add(layers.Conv2D(128, (3, 3), padding="same", activation="relu"))
+    model.add(layers.BatchNormalization())
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(layers.Dropout(0.25))
+
+    # Classifier Head (Sigmoid for Binary Gate)
+    model.add(layers.Flatten())
+    model.add(layers.Dense(64, activation="relu"))
+    model.add(layers.BatchNormalization())
+    model.add(layers.Dropout(0.4))
+    model.add(layers.Dense(1, activation="sigmoid", name="binary_gate_output"))
+
+    return model
+
